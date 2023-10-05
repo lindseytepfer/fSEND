@@ -1,0 +1,44 @@
+.App {
+  text-align: center;
+  margin-top: 150px;
+  font-family: sans-serif;
+  font-weight: 100;
+}
+
+#question {
+  font-size: 30px;
+  margin-bottom: 50px;
+}
+
+#photo {
+  margin-bottom: 25px;
+}
+
+#demo-radio-buttons-group-label {
+  margin-bottom: 25px;
+}
+
+#sidelabel {
+  font-size: 20px;
+  font-weight: 300;
+  margin-top: 15px;
+  color:grey;
+}
+
+button {
+  background-color: #15b08e;
+  border: 2px solid white;
+  color:white;
+  padding: 10px 32px;
+  margin-top:50px;
+  font-size: 25px;
+  border-radius: 15px;
+}
+
+button:hover {
+  background-color: #13b895;
+}
+
+button:active {
+  transform: translateY(4px);
+}
