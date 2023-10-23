@@ -1,0 +1,43 @@
+.App {
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: 100;
+}
+
+body {background-color: black;}
+
+#intro-text {
+  color:white;
+  font-size: 30px;
+  padding-top:150px;
+  padding-left:150px;
+  padding-right:150px;
+}
+
+#experiment-text {
+  color:white;
+  font-size:30px;
+  padding-top: 350px;
+  margin:auto;
+}
+
+#video-align {
+  margin: auto;
+}
+
+button {
+  background-color: #15b08e;
+  color:white;
+  padding: 10px 32px;
+  margin-top:50px;
+  font-size: 25px;
+  border-radius: 15px;
+}
+
+button:hover {
+  background-color: #13b895;
+}
+
+button:active {
+  transform: translateY(4px);
+}
