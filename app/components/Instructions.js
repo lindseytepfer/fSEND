@@ -3,11 +3,11 @@ import React from "react";
 export const Instructions = ( {pageEvent} ) => {
 
     return (
-    <>
+    <div id='intro-text'>
         <h1>Welcome to the Personal Narratives Study!</h1>
 
         <p>
-            In this study, you watch several videos of individuals
+            In this study, you will watch several videos of individuals
             narrating personal moments in their lives, as well as two
             longer videos of characters in a TV show and a short film.  
         </p>
@@ -25,6 +25,6 @@ export const Instructions = ( {pageEvent} ) => {
         </p>
 
         <button onClick={pageEvent}>CONTINUE</button>
-    </>
+    </div>
     );
 };

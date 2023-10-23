@@ -26,6 +26,13 @@ export const Experiment = ( {pageEvent} ) => {
         videoDurations.push(trialSequence[runState][video]);
     }
 
+    // CALCULATE ITI FOR EACH 10MIN RUN (600000 MS)
+    const sum = videoDurations.reduce((accumulator, currentValue) => {
+        return accumulator + currentValue
+      },0);
+    
+    const ITI = Math.floor((600000 - sum) / 3);
+
     const advanceRun = () => {
         if (runState < 10){
             setRunState((prev) => prev + 1);
@@ -44,7 +51,7 @@ export const Experiment = ( {pageEvent} ) => {
             advanceRun();
         }
     }
-
+    
     useEffect(() => {
         const timer = setTimeout(() => {
             if (currentScreen[screenState] === "ITI") {
@@ -75,41 +82,49 @@ export const Experiment = ( {pageEvent} ) => {
     }, [])
     
     // TROUBLESHOOTING
-    console.log("videoState",videoState, "videolist length", videoList.length, "runstate:", runState, videoList)
+    console.log("runstate:", runState)
     
     return (
-    <>
+    <div>
         {currentScreen[screenState] === "startScreen" && 
         <>
-        <p>Please press the button when you are ready to begin the next run. </p>
-        <button>Ready</button>
+            <div id='experiment-text'>
+                <p>Please press the button when you are ready to begin the next run. </p>
+                <button>Ready</button>
+            </div>
         </>
         }
         
         {currentScreen[screenState] === "opScreen" && 
         <>
-        <p>The run will begin shortly ...</p>
+            <div id='experiment-text'>
+                <p>Waiting for operator confirmation ...</p>
+            </div>
         </>
         }
 
         {currentScreen[screenState] === "scanScreen" && 
         <>
-        <p> Waiting for scanner ... </p>
+            <div id='experiment-text'>
+                <p> Waiting for scanner confirmation ... </p>
+            </div>
         </>
         }
 
         {currentScreen[screenState] === "videoStimulus" && 
         <>
-        <VidStim videoListProp={videoList} videoStateProp={videoState} advanceVideoProp={advanceVideo} videoDurationsProp={videoDurations[videoState]}/>
+        <VidStim videoListProp={videoList} videoStateProp={videoState} advanceVideoProp={advanceVideo} videoDurationsProp={videoDurations[videoState]} ITIprop={ITI}/>
         </>
         }
 
         {currentScreen[screenState] === "ITI" && 
         <>
-        <p>Run complete...preparing next run...</p>
+            <div id='experiment-text'>
+                <p>Run complete...preparing next run...</p>
+            </div>
         </>
         }
 
-    </>
+    </div>
     );
 };
