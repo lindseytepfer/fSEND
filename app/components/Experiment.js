@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { VidStim } from "./VidStim";
 
-const trialSequence = {"1": {"ID145_vid4": 193320, "ID165_vid7": 103340, "ID153_vid3": 63000, "ID113_vid4": 180570},
-              "2": {"ID161_vid1": 180720, "ID129_vid6": 157260, "ID111_vid3": 192060, "ID124_vid6": 96229},
-              "3": {"ID112_vid1": 90520, "ID118_vid1": 164500, "ID127_vid3": 181380, "ID147_vid4": 120470},
-              "4": {"ID169_vid2": 170240, "ID179_vid3": 163329, "ID171_vid5": 167170, "ID141_vid1": 60400},
-              "5": {"ID174_vid2": 91539, "ID130_vid6": 112250, "ID156_vid3": 139770, "ID180_vid6": 147150},
-              "6": {"ID181_vid6": 126170, "ID137_vid6": 163350, "ID164_vid3": 175740, "ID170_vid7": 69230},
-              "7": {"ID128_vid5": 172970, "ID168_vid1": 121860, "ID123_vid3": 176300, "ID121_vid6": 87640},
-              "8": {"ID117_vid4": 161450, "ID120_vid4": 142530, "ID131_vid2": 152920, "ID116_vid2": 115280},
-              "9": {"physical-v1": 597470},
-              "10": {"stutter-v1": 748500}}
+export const Experiment = ( {pageEvent, subID, runID} ) => {
+    const [trialSequence, setTrialSequence] = useState(0);
 
-export const Experiment = ( {pageEvent} ) => {
+    useEffect(() => {
+        import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/task/f-send/public/sub_files/sub_00${subID}.json`)
+          .then((module) => {
+            // Access the JSON data from the imported module
+            const data = module.default;
+            setTrialSequence(data);
+          })
+          .catch((error) => {
+            console.error('Error loading JSON file:', error);
+          });
+      }, [subID]);
+
     const [screenState, setScreenState] = useState(0);
-    const [runState, setRunState] = useState(1);
+    const [runState, setRunState] = useState(runID);
     const [videoState, setVideoState] = useState(0);
 
     const currentScreen = ['startScreen','opScreen','scanScreen','videoStimulus', 'ITI'];
@@ -82,7 +85,7 @@ export const Experiment = ( {pageEvent} ) => {
     }, [])
     
     // TROUBLESHOOTING
-    console.log("runstate:", runState)
+    console.log("runstate:", runState, "subjectID:", subID)
     
     return (
     <div>
@@ -106,7 +109,7 @@ export const Experiment = ( {pageEvent} ) => {
         {currentScreen[screenState] === "scanScreen" && 
         <>
             <div id='experiment-text'>
-                <p> Waiting for scanner confirmation ... </p>
+                <p> Waiting for scanner ... </p>
             </div>
         </>
         }
