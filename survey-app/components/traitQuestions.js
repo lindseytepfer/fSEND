@@ -2,18 +2,6 @@ import React, { useState, useEffect } from "react";
 import { RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from "@mui/material";
 import Axios from "axios";
 
-import data from "/Users/f004p74/Documents/dartmouth/projects/fSEND/survey/survey-app/client/src/trialOrders/sub_001.json"
-
-const traitList = [];
-const targetList = [];
-
-for (let trait in data) {
-  traitList.push(trait)
-  for (let target in data[trait]) {
-    targetList.push(target)
-   }
- }
-
 const definitions = {'bossy': 'a person who likes giving people orders and wants things their own way.',
 'easygoing': 'a person who is relaxed, tolerant, and not prone to rigid rules or bouts of temper.',
 'nosy': 'a person who is overly curious about other people\'s business.',
@@ -21,67 +9,111 @@ const definitions = {'bossy': 'a person who likes giving people orders and wants
 'rebellious': 'a person who resists authority, control, or convention and wants to have their own way.',
 'humble': 'a person who is modest and does not boast.'}
 
-export const TraitQuestions = ( { pageEvent }) => {
-    const [traitIndex, setTraitIndex] = useState(0);
-    const [targetIndex, setTargetIndex] = useState(0);
-    const [progress, setProgress] = useState(0);
-    const [response, setResponse] = useState(0);
-    const [skipped, setSkipped] = useState(false);
-  
-    const target = targetList[targetIndex];
-    const trait = traitList[traitIndex];
-  
-    const sendData = () => {
-      Axios.post('http://localhost:3001/',{
-        target:target,
-        trait:trait,
-        response:response
-      }).then(() => {
-        console.log("values inserted.");
-      });
-    };
+export const TraitQuestions = ( { pageEvent, subID }) => {
 
-    const advProgress = () => {
-      setProgress((prev) => prev+1); 
+  const [data, setData] = useState(0);
+
+  useEffect(() => {
+      import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/survey/survey-app/client/src/trialOrders/sub_00${subID}.json`)
+        .then((module) => {
+          // Access the JSON data from the imported module
+          const x = module.default;
+          setData(x);
+        })
+        .catch((error) => {
+          console.error('Error loading JSON file:', error);
+        });
+    }, [subID]);
+
+  const traitList = [];
+  const targetList = [];
+
+  for (let trait in data) {
+    traitList.push(trait)
+    for (let target in data[trait]) {
+      targetList.push(target)
     }
+  }
+
+  const [trial, setTrial] = useState(1);
+  const [traitIndex, setTraitIndex] = useState(0);
+  const [targetIndex, setTargetIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [response, setResponse] = useState(0);
+  const [click, setClick] = useState(false);
+
+  const target = targetList[targetIndex];
+  const trait = traitList[traitIndex];
+
+  const sendData = () => {
+    Axios.post('http://localhost:3001/',{
+      subID:subID,
+      trial:trial,
+      target:target,
+      trait:trait,
+      response:response
+    }).then(() => {
+      console.log("values inserted.");
+    });
+  };
+
+  const advProgress = () => {
+    setProgress((prev) => prev+1); 
+  }
     
-    const advanceTrial = () => {
-      if (response === 0){
-        setSkipped(true);
-      } else {
-        if (progress < 34){
-          setSkipped(false);
-          sendData();
-          setTargetIndex((prev) => prev+1);
-          setProgress((prev)=>prev+1);
-          setResponse(0)
-        } else {
-          setSkipped(false)
-          sendData();
-          setProgress(0);
-          setTraitIndex((prev) => prev +1);
-          setTargetIndex((prev) => prev +1);
-          setResponse(0)
-        }
+  const advanceTrial = () => {
+    if (progress < 34){
+      sendData();
+      setTargetIndex((prev) => prev+1);
+      setProgress((prev)=>prev+1);
+      setResponse(0)
+    } else {
+      sendData();
+      setProgress(0);
+      setTraitIndex((prev) => prev +1);
+      setTargetIndex((prev) => prev +1);
+      setResponse(0)
+    }
+  }
+
+  useEffect(() => {
+    if (traitIndex === 6){
+      pageEvent();
+      console.log("traitIndex:", traitIndex)
+    }
+  }, [traitIndex])
+
+  const toggleClick = () => {
+    if (click) {
+      setClick(false);
+    } else {
+      setClick(true);
+    }
+  }
+
+  const handleChange = (e) => {
+    setResponse(e.target.value);
+    toggleClick();
+  };
+
+  useEffect(()=>{
+    if (progress > 0) {
+      const timer = setTimeout(()=>{
+        setTrial((prev) => prev+1);
+        advanceTrial();
+      }, 800)
+
+      return () => {
+        clearTimeout(timer)
       }
     }
-  
-    useEffect(() => {
-      if (traitIndex === 6){
-        pageEvent();
-        console.log("traitIndex:", traitIndex)
-      }
-    }, [traitIndex])
-  
-    const handleChange = (e) => {
-      setResponse(e.target.value);
-    };
-  
-    console.log("progress:", progress, "traitIndex:", traitIndex, "trait:", trait, "targetIndex", targetIndex)
+  }, [click])
 
-    return (
-      <div className="App">
+  console.log("response",response, "progress:", progress,
+   "traitIndex:", traitIndex, "trait:", trait, "targetIndex", targetIndex)
 
+  return (
+    <div className="App">
         <> {progress === 0 && 
           <div id="question">
             <p>In the following section, you'll rate the individuals based on the following trait: {traitList[traitIndex]}</p>
@@ -111,12 +143,7 @@ export const TraitQuestions = ( { pageEvent }) => {
                       <FormLabel id="sidelabel" labelplacement="end">Very {traitList[traitIndex]} </FormLabel>
                   </RadioGroup>
           </FormControl>
-          
-          <div><button onClick={advanceTrial}>next</button></div>
-  
-          {skipped && 
-            <p><em>please select a response.</em></p>
-          }
+
         </>
         }
     </div>
