@@ -41,6 +41,8 @@ export const TraitQuestions = ( { pageEvent, subID }) => {
   const [progress, setProgress] = useState(0);
   const [response, setResponse] = useState(0);
   const [click, setClick] = useState(false);
+  const [ST, setST] = useState(0); // (stimulus) start time
+  const [RT, setRT] = useState(0); // reaction time
 
   const target = targetList[targetIndex];
   const trait = traitList[traitIndex];
@@ -51,7 +53,8 @@ export const TraitQuestions = ( { pageEvent, subID }) => {
       trial:trial,
       target:target,
       trait:trait,
-      response:response
+      response:response,
+      RT:RT
     }).then(() => {
       console.log("values inserted.");
     });
@@ -108,6 +111,14 @@ export const TraitQuestions = ( { pageEvent, subID }) => {
       }
     }
   }, [click])
+
+  useEffect(()=>{
+    setST(Date.now());
+  }, [targetIndex])
+
+  useEffect(()=>{
+    setRT(Date.now() - ST);
+  },[click])
 
   console.log("response",response, "progress:", progress,
    "traitIndex:", traitIndex, "trait:", trait, "targetIndex", targetIndex)
