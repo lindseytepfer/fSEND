@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-export const Instructions = ( {pageEvent} ) => {
+export const Instructions = ( {pageEvent, runID, setRunID} ) => {
+
+    useEffect(() => {
+        if (runID == "") {
+            setRunID(1);
+        }
+    }, []); 
 
     return (
     <div id='intro-text'>

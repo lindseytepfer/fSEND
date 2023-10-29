@@ -43,7 +43,8 @@ export const VidStim = ( { videoListProp, videoStateProp, advanceVideoProp, vide
             {showStim === false && 
                 <>
                     <div id='experiment-text'>
-                    <p>The next video will begin shortly.</p>
+                    <p>The next video [{videoStateProp+1} of {videoListProp.length}] will begin shortly.
+                    </p>
                     </div>
                 </>
             }

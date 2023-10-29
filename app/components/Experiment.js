@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { VidStim } from "./VidStim";
 
-export const Experiment = ( {pageEvent, subID, runID} ) => {
+export const Experiment = ( {pageEvent, subID, runID} ) => { 
+
     const [trialSequence, setTrialSequence] = useState(0);
 
     useEffect(() => {
@@ -30,11 +31,17 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     }
 
     // CALCULATE ITI FOR EACH 10MIN RUN (600000 MS)
-    const sum = videoDurations.reduce((accumulator, currentValue) => {
+    // 1) Get the sum of all 4 clip durations
+    let sum = videoDurations.reduce((accumulator, currentValue) => {
         return accumulator + currentValue
       },0);
     
-    const ITI = Math.floor((600000 - sum) / 3);
+      // 2) Determine how many 6s gaps we need and add it to the sum
+    const vidNum = videoList.length
+    sum += vidNum * 6;
+    
+    // 3) subtract the new sum from 10minutes to get ITI of each trial
+    const ITI = Math.floor((600000 - sum) / vidNum);
 
     const advanceRun = () => {
         if (runState < 10){
@@ -60,13 +67,12 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
             if (currentScreen[screenState] === "ITI") {
                 setScreenState(0);
             }
-        }, 2000); // after X time 
+        }, ITI); // after ITI time 
 
         return () => {
             clearTimeout(timer);
         };
     }, [screenState]);  
-    
 
     // ADVANCING READY SCREENS
     const detectKey = (e) => {
@@ -85,14 +91,15 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     }, [])
     
     // TROUBLESHOOTING
-    console.log("runstate:", runState, "subjectID:", subID)
+    console.log("runstate:", runState, "subjectID:", subID, "runID:", runID)
     
     return (
     <div>
         {currentScreen[screenState] === "startScreen" && 
         <>
             <div id='experiment-text'>
-                <p>Please press the button when you are ready to begin the next run. </p>
+                <p>Please press the button when you are ready to begin the next run</p>
+                <p>[run {runState} of 10]</p>
                 <button>Ready</button>
             </div>
         </>
