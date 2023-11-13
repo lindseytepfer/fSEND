@@ -16,7 +16,8 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
             console.error('Error loading JSON file:', error);
           });
       }, [subID]);
-
+    
+    const [trigger, setTrigger] = useState([]);
     const [screenState, setScreenState] = useState(0);
     const [runState, setRunState] = useState(runID);
     const [videoState, setVideoState] = useState(0);
@@ -66,6 +67,7 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
         const timer = setTimeout(() => {
             if (currentScreen[screenState] === "ITI") {
                 setScreenState(0);
+                setTrigger([]);
             }
         }, ITI); // after ITI time 
 
@@ -77,11 +79,11 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     // ADVANCING READY SCREENS
     const detectKey = (e) => {
         if (e.key === '1') {
-            setScreenState((prev) => prev+1);
+            setTrigger((trigger) => [...new Set([...trigger, e.key])]);
         } else if (e.key === 'o') {
-            setScreenState((prev) => prev+1);
-        } else if (e.key === 's') {
-            setScreenState((prev) => prev+1);
+            setTrigger((trigger) => [...new Set([...trigger, e.key])]);
+        } else if (e.key === '5') {
+            setTrigger((trigger) => [...new Set([...trigger, e.key])]);
         }
     }
 
@@ -89,9 +91,21 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     useEffect(() => {
         document.addEventListener('keydown',detectKey,true)
     }, [])
+
+    // SCREEN STATE LISTENER
+
+    useEffect(()=> {
+        if (trigger.length === 1){
+            setScreenState(1);
+        } else if (trigger.length === 2){
+            setScreenState(2);
+        } else if (trigger.length === 3){
+            setScreenState(3);
+        }
+    },[trigger])
     
     // TROUBLESHOOTING
-    console.log("runstate:", runState, "subjectID:", subID, "runID:", runID)
+    console.log("screenState:", screenState,"trigger:",trigger)
     
     return (
     <div>
