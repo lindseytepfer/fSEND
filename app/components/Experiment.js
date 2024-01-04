@@ -6,7 +6,7 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     const [trialSequence, setTrialSequence] = useState(0);
 
     useEffect(() => {
-        import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/task/f-send/public/sub_files/sub_00${subID}.json`)
+        import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/task/f-send/public/sub_files/sub_${subID}.json`)
           .then((module) => {
             // Access the JSON data from the imported module
             const data = module.default;
@@ -16,11 +16,12 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
             console.error('Error loading JSON file:', error);
           });
       }, [subID]);
-    
+
     const [trigger, setTrigger] = useState([]);
     const [screenState, setScreenState] = useState(0);
     const [runState, setRunState] = useState(runID);
     const [videoState, setVideoState] = useState(0);
+    const [interval, setInterval] = useState(0);
 
     const currentScreen = ['startScreen','opScreen','scanScreen','videoStimulus', 'ITI'];
     const videoList = [];
@@ -31,18 +32,19 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
         videoDurations.push(trialSequence[runState][video]);
     }
 
-    // CALCULATE ITI FOR EACH 10MIN RUN (600000 MS)
-    // 1) Get the sum of all 4 clip durations
-    let sum = videoDurations.reduce((accumulator, currentValue) => {
-        return accumulator + currentValue
-      },0);
-    
-      // 2) Determine how many 6s gaps we need and add it to the sum
-    const vidNum = videoList.length
-    sum += vidNum * 6;
-    
-    // 3) subtract the new sum from 10minutes to get ITI of each trial
-    const ITI = Math.floor((600000 - sum) / vidNum);
+    // CALCULATE ITI FOR EACH RUN 
+    useEffect(()=>{
+        // for every video, we add one 6s ITI
+        if (videoList.length > 1) {
+            const totalDuration = videoDurations.reduce((accumulator, currentValue) => {
+                return accumulator + currentValue
+              },0);
+
+            setInterval(Math.floor((600000 - totalDuration) / 4));
+        } else {
+            setInterval(6000);
+        }
+    },[screenState])
 
     const advanceRun = () => {
         if (runState < 10){
@@ -67,9 +69,8 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
         const timer = setTimeout(() => {
             if (currentScreen[screenState] === "ITI") {
                 setScreenState(0);
-                setTrigger([]);
             }
-        }, ITI); // after ITI time 
+        }, interval); // after ITI time 
 
         return () => {
             clearTimeout(timer);
@@ -77,6 +78,12 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     }, [screenState]);  
 
     // ADVANCING READY SCREENS
+    
+    // KEYDOWN LISTENER
+    useEffect(() => {
+        document.addEventListener('keydown',detectKey,true)
+    }, [])
+
     const detectKey = (e) => {
         if (e.key === '1') {
             setTrigger((trigger) => [...new Set([...trigger, e.key])]);
@@ -87,25 +94,29 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
         }
     }
 
-    // KEYDOWN LISTENER
-    useEffect(() => {
-        document.addEventListener('keydown',detectKey,true)
-    }, [])
-
     // SCREEN STATE LISTENER
-
     useEffect(()=> {
-        if (trigger.length === 1){
+        if (trigger.toString() === "1"){
             setScreenState(1);
-        } else if (trigger.length === 2){
+        } else if (trigger.toString() === "1,o"){
             setScreenState(2);
-        } else if (trigger.length === 3){
+        } else if (trigger.toString() === "1,o,5"){
             setScreenState(3);
         }
     },[trigger])
-    
+
+    useEffect(()=> {
+        if (screenState === 0 || screenState === 4){
+            setTrigger([]);
+            console.log(trigger)
+        } 
+    },[screenState])
+
     // TROUBLESHOOTING
-    console.log("screenState:", screenState,"trigger:",trigger)
+    console.log("screenState:", screenState, currentScreen[screenState],
+    "videoState:", videoState, videoList[videoState],
+    "RunState:", runState,
+    "trigger:", trigger)
     
     return (
     <div>
@@ -114,7 +125,6 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
             <div id='experiment-text'>
                 <p>Please press the button when you are ready to begin the next run</p>
                 <p>[run {runState} of 10]</p>
-                <button>Ready</button>
             </div>
         </>
         }
@@ -137,7 +147,7 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
 
         {currentScreen[screenState] === "videoStimulus" && 
         <>
-        <VidStim videoListProp={videoList} videoStateProp={videoState} advanceVideoProp={advanceVideo} videoDurationsProp={videoDurations[videoState]} ITIprop={ITI}/>
+        <VidStim videoListProp={videoList} videoStateProp={videoState} advanceVideoProp={advanceVideo} videoDurationsProp={videoDurations[videoState]} ITIprop={interval}/>
         </>
         }
 

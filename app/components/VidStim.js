@@ -7,6 +7,11 @@ export const VidStim = ( { videoListProp, videoStateProp, advanceVideoProp, vide
     var w = window.innerWidth;
     var h = window.innerHeight;
 
+    /* when this component mounts, the state stimDisplay is first set to the length 
+    of the clip, in miliseconds, and showStim is set to true. After the clips' duration
+    has passed, the stimDisplay is switched to the ITI duration, which is calculated
+     */
+
     useEffect(() => {
         if (showStim) {
 
@@ -30,7 +35,8 @@ export const VidStim = ( { videoListProp, videoStateProp, advanceVideoProp, vide
       }, [showStim]);
 
 
-    console.log('videoID:', videoListProp[videoStateProp], 'videoState (videoList index):',videoStateProp)
+    console.log('videoList length:',videoListProp.length, 'videoID:', videoListProp[videoStateProp], 'videoState (videoList index):',videoStateProp,
+    "video duration:", videoDurationsProp, "ITI length:", ITIprop)
 
     return (
         <div id="video-align">
