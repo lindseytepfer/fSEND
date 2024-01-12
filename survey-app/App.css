@@ -21,6 +21,14 @@ input {
   margin-bottom: 50px;
 }
 
+#debrief {
+  font-size: 20px;
+  margin-left: 70px;
+  margin-right: 70px;
+  margin-bottom: 50px;
+}
+
+
 #photo {
   margin-bottom: 25px;
 }
