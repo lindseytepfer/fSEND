@@ -6,7 +6,7 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     const [trialSequence, setTrialSequence] = useState(0);
 
     useEffect(() => {
-        import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/task/f-send/public/sub_files/sub_${subID}.json`)
+        import(`/Users/f004p74/Documents/dartmouth/projects/fSEND/task/f-send/public/sub_files/sub_${subID}_run-sequence.json`)
           .then((module) => {
             // Access the JSON data from the imported module
             const data = module.default;
@@ -22,6 +22,7 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     const [runState, setRunState] = useState(runID);
     const [videoState, setVideoState] = useState(0);
     const [interval, setInterval] = useState(0);
+    const [complete, setComplete] = useState(false)
 
     const currentScreen = ['startScreen','opScreen','scanScreen','videoStimulus', 'ITI'];
     const videoList = [];
@@ -47,12 +48,13 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     },[screenState])
 
     const advanceRun = () => {
-        if (runState < 10){
+        if (runState < 9) {
             setRunState((prev) => prev + 1);
             setVideoState(0);
             setScreenState((prev) => prev+1);
-        } else if (runState === 10){
-            pageEvent();
+        } else {
+            setComplete(true);
+            setScreenState((prev) => prev+1);
         }
     }
 
@@ -67,8 +69,10 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (currentScreen[screenState] === "ITI") {
+            if (currentScreen[screenState] === "ITI" && !complete) {
                 setScreenState(0);
+            } else if (currentScreen[screenState] === "ITI" && complete) {
+                pageEvent();
             }
         }, interval); // after ITI time 
 
@@ -113,18 +117,22 @@ export const Experiment = ( {pageEvent, subID, runID} ) => {
     },[screenState])
 
     // TROUBLESHOOTING
-    console.log("screenState:", screenState, currentScreen[screenState],
-    "videoState:", videoState, videoList[videoState],
-    "RunState:", runState,
-    "trigger:", trigger)
+    console.log("screenState:", screenState,
+    "currentScreen:", currentScreen[screenState],
+    "videoState:", videoState,
+    'videoList:', videoList, 
+    "current video", videoList[videoState],
+    "runState:", runState, 
+    "trigger:", trigger,
+    "complete?", complete)
     
     return (
     <div>
         {currentScreen[screenState] === "startScreen" && 
         <>
             <div id='experiment-text'>
-                <p>Please press the button when you are ready to begin the next run</p>
-                <p>[run {runState} of 10]</p>
+                <p>Please press '1' when you are ready to begin the next run</p>
+                <p>[run {runState} of 9]</p>
             </div>
         </>
         }
